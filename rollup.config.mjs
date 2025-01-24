@@ -64,14 +64,19 @@ export default {
       },
       template: () => template // 直接使用 demo.html 的内容
     }),
-    serve({
-      port: 3000,
-      open: process.env.VUE_APP_PACKAGE_ENV === "build" ? false : true,
-      contentBase: "dist",
-    }),
+
     strip({
-      debugger: false,  // 保留 debugger
-      functions: ['console.*']  // 如果不希望删除 console.*，可以这样配置
-    })
+      debugger: false, // 保留 debugger
+      functions: ['console.*'] // 如果不希望删除 console.*，可以这样配置
+    }),
+    ...(process.env.VUE_APP_PACKAGE_ENV !== 'build'
+      ? [
+          serve({
+            port: 3000,
+            open: process.env.VUE_APP_PACKAGE_ENV === 'build' ? false : true,
+            contentBase: 'dist'
+          })
+        ]
+      : [])
   ]
 }
