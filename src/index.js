@@ -24,7 +24,6 @@ class JsTabs {
   }
 
   init() {
-    console.log(544444444)
     if (!this.getPageCode) this.setPageCode = generateUUID()
     if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
   }
