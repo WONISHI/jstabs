@@ -11,3 +11,7 @@ export function getenumKey(code) {
   }
   return '00000000000000000000000000000000' // 如果枚举值不存在，返回32个零
 }
+
+export function typeOf(value) {
+  return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
+}

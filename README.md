@@ -128,7 +128,7 @@ window.addEventListener('beforeunload', () => {
 initializePage();
 ```
 
-3. 额外补充：Web Workers 或 Service Workers
+1.  额外补充：Web Workers 或 Service Workers
    如果你的应用需要更复杂的后台任务处理，或者需要在页面关闭时执行一些操作，可以考虑使用 Web Workers 或 Service Workers 来管理后台的长期任务。Web Workers可以在后台线程中执行代码，不会阻塞主线程。Service Workers则是一个更加持久的后台代理，可以处理离线缓存等。
 
 总结

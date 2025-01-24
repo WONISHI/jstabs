@@ -1,5 +1,6 @@
 import { enumValue, emumStorage, enumOperation } from '@/utils/enum.js'
 import { getenumKey } from '@/utils/index'
+import storageManager from '@/utils/storeage.js'
 export function eventType(page) {
   // 判断刷新操作
   window.addEventListener('beforeunload', (event) => {
@@ -58,52 +59,32 @@ export function eventType(page) {
     this.triggerEvent(enumValue.PAGE_VISIBILITY)
   })
   window.addEventListener('storage', (event) => {
+    console.log(event)
     this.resetClickTrigger()
+    console.log(event)
     // 判断交互动作
-    let eventStore = null
-    let storageKeys = null
     switch (true) {
-      case !event.oldValue && event.newValue:
-        eventStore = enumOperation.ADD
-        break
       case event.oldValue && event.newValue && event.newValue !== event.oldValue:
-        eventStore = enumOperation.EDIT
-        changeStorage.call(this, storageType(event, eventStore), eventStore, event)
-        break
       case event.oldValue && !event.newValue:
-        eventStore = enumOperation.DELETE
-        changeStorage.call(this, storageType(event, eventStore), eventStore, event)
+        changeStorage.call(this, event)
         break
       default:
         break
     }
-
     // 触发storage监听事件
     this.triggerEvent(enumValue.STORAGE_EVENT, event)
   })
 }
 
-function storageType(event) {
-  if (!event.newValue) {
-    return Object.keys(window.localStorage).every((key) => window.localStorage[key] !== event.oldValue) ? 'localStorage' : 'sessionStorage'
-  }
-  return Object.keys(window.localStorage).includes(event.key) ? 'localStorage' : 'sessionStorage'
-}
-
-function changeStorage(storageKeys, eventStore, event) {
-  switch (storageKeys) {
-    case 'localStorage':
-      // 修改localStorage
-      if (event.key === emumStorage.UUID_PAGE_LIST) {
-        this.setPageCodeList = JSON.parse(event.oldValue)
-      }
-      break
-    case 'sessionStorage':
-      if (event.key === emumStorage.UUID_PAGE) {
-        this.setPageCode = JSON.parse(event.oldValue)
-      }
-      break
-    default:
-      break
+// 监听外部修改localStorage和sessionStorage
+function changeStorage(event) {
+  if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
+  console.log(storageManager)
+  if (!storageManager.isInternalOperation) {
+    if (event.key === emumStorage.UUID_PAGE_LIST) {
+      // this.setPageCodeList = JSON.parse(event.oldValue)
+    } else {
+      this.setPageCode = event.oldValue
+    }
   }
 }

@@ -4,9 +4,10 @@
  * 如果控制台清理sessionStorage，那么需要监听sessionStorage，然后内部执行初始化再存储一遍，然后塞值，其他页面监听到localStorage变会向新增的页面发送消息监听到
  * 的消息然后更新localStorage
  */
-import { generateUUID, getenumKey } from './utils'
+import { generateUUID, getenumKey, typeOf } from './utils'
 import { eventType } from '@/utils/event.js'
 import { enumValue, emumStorage } from '@/utils/enum.js'
+import storageManager from '@/utils/storeage.js'
 import '@/utils/rewrite.js'
 
 class JsTabs {
@@ -15,15 +16,15 @@ class JsTabs {
     if (JsTabs.instance) {
       return JsTabs.instance
     }
-    this.init()
-    this.changePage = false
     eventType.call(this, this.getPageCode)
+    this.init()
     this.resetStatus()
-
+    debugger;
     JsTabs.instance = this
   }
 
   init() {
+    console.log(544444444)
     if (!this.getPageCode) this.setPageCode = generateUUID()
     if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
   }
@@ -52,29 +53,29 @@ class JsTabs {
 
   // 设置页面初始化uuid
   get getPageCode() {
-    return window.sessionStorage.getItem(emumStorage.UUID_PAGE_LIST)
+    return storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)
   }
   set setPageCode(pageCode) {
-    window.sessionStorage.setItem(emumStorage.UUID_PAGE_LIST, pageCode)
+    storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, pageCode)
   }
 
   // 获取项目初始化uuid列表
   get getPageCodeList() {
-    return window.localStorage.getItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(window.localStorage.getItem(emumStorage.UUID_PAGE_LIST)) : []
+    return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)) : []
   }
 
   set setPageCodeList(pageCodeList) {
     // 判断是对象还是数组
-    if (Object.prototype.toString.call(pageCodeList) === '[object Object]') {
-      window.localStorage.setItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
-    } else if (Object.prototype.toString.call(pageCodeList) === '[object Array]') {
-      window.localStorage.setItem(emumStorage.UUID_PAGE_LIST, JSON.stringify(pageCodeList))
+    if (typeOf(pageCodeList) === 'object') {
+      storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
+    } else if (typeOf(pageCodeList) === 'array') {
+      storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify(pageCodeList))
     }
   }
 
   // 获取对应页面在项目列表的uuid的哪项
   get getPageCodeIndex() {
-    return this.getPageCodeList.findIndex((item) => item.uuid === this.getPageCode)
+    return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item) => item.uuid === this.getPageCode) : -1
   }
 
   // 重置状态
