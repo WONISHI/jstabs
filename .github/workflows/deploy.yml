@@ -25,7 +25,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4  # 设置 Node.js 环境
         with:
-          node-version: '16'  # 设置 Node.js 版本
+          node-version: '14.17.0'  # 设置 Node.js 版本
 
       - name: Install dependencies
         run: npm install  # 安装依赖
