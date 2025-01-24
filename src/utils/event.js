@@ -59,9 +59,7 @@ export function eventType(page) {
     this.triggerEvent(enumValue.PAGE_VISIBILITY)
   })
   window.addEventListener('storage', (event) => {
-    console.log(event)
     this.resetClickTrigger()
-    console.log(event)
     // 判断交互动作
     switch (true) {
       case event.oldValue && event.newValue && event.newValue !== event.oldValue:
