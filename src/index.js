@@ -5,10 +5,10 @@
  * 的消息然后更新localStorage
  */
 import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
-import { eventType } from '@/utils/event.js'
-import { enumValue, emumStorage } from '@/utils/enum.js'
-import storageManager from '@/utils/storeage.js'
-import { combineField, decomposeField } from '@/utils/dataStructures/index'
+import { eventType } from '@/eventListeners'
+import { enumValue, emumStorage } from '@/constant'
+import storageManager from '@/storageService'
+import { combineField, decomposeField } from '@/dataStructures'
 // import '@/utils/rewrite.js'
 
 class JsTabs {

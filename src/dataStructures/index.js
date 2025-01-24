@@ -1,6 +1,6 @@
-import { generateUUID, getBinaryByKey } from '@/utils/index'
-import { emumStorage } from '@/utils/enum.js'
-import storageManager from '@/utils/storeage.js'
+import { generateUUID, getBinaryByKey } from '@/utils'
+import { emumStorage } from '@/constant'
+import storageManager from '@/storageService'
 const defaultStatus = 'INIT'
 //合并字段
 export function combineField(status = defaultStatus) {

@@ -1,6 +1,6 @@
-import { enumValue, emumStorage } from '@/utils/enum.js'
-import { getBinaryByKey } from '@/utils/index'
-import storageManager from '@/utils/storeage.js'
+import { enumValue, emumStorage } from '@/constant'
+import { getBinaryByKey } from '@/utils'
+import storageManager from '@/storageService'
 export function eventType(page) {
     // 判断刷新操作
     window.addEventListener('beforeunload', (event) => {
