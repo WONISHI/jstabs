@@ -4,11 +4,12 @@
  * 如果控制台清理sessionStorage，那么需要监听sessionStorage，然后内部执行初始化再存储一遍，然后塞值，其他页面监听到localStorage变会向新增的页面发送消息监听到
  * 的消息然后更新localStorage
  */
-import { generateUUID, getenumKey, typeOf } from './utils'
+import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
 import { eventType } from '@/utils/event.js'
 import { enumValue, emumStorage } from '@/utils/enum.js'
 import storageManager from '@/utils/storeage.js'
-import '@/utils/rewrite.js'
+import { combineField, decomposeField } from '@/utils/dataStructures/index'
+// import '@/utils/rewrite.js'
 
 class JsTabs {
   static _eventCallbacks = new Map()
@@ -16,15 +17,21 @@ class JsTabs {
     if (JsTabs.instance) {
       return JsTabs.instance
     }
+    // 初始化监听
     eventType.call(this, this.getPageCode)
+    // 初始化方法
     this.init()
-    this.resetStatus()
-    debugger;
+    // 重置状态
+    this._resetStatus()
+
+    // 绑定this
+    this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.INIT)
+    this._entry_value = getBinaryByKey(this._entry_key)
     JsTabs.instance = this
   }
 
   init() {
-    if (!this.getPageCode) this.setPageCode = generateUUID()
+    if (!this.getPageCode) this.setPageCode = this._entry_key
     if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
   }
 
@@ -52,10 +59,10 @@ class JsTabs {
 
   // 设置页面初始化uuid
   get getPageCode() {
-    return storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)
+    return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
   }
-  set setPageCode(pageCode) {
-    storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, pageCode)
+  set setPageCode(EntryKey) {
+    storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
   }
 
   // 获取项目初始化uuid列表
@@ -78,9 +85,9 @@ class JsTabs {
   }
 
   // 重置状态
-  resetStatus() {
+  _resetStatus() {
     this.eventType = {
-      eventCode: getenumKey(enumValue.INIT), //触发事件的code
+      eventCode: enumValue.INIT, //触发事件的code
       EventSource: enumValue.INIT, //触发事件的字段名
       isInit: true, // 是否已经初始化了
       triggerRefresh: false, // 是否触发刷新了
@@ -91,10 +98,10 @@ class JsTabs {
     this.isOnline = true // 是否在线
     this.isVisiable = true // 是否可见
     this.isOver = false // 是否离开
-    this.resetClickTrigger()
+    this._resetClickTrigger()
   }
 
-  resetClickTrigger() {
+  _resetClickTrigger() {
     this.clickTrigger = {
       isClick: false,
       isMouse: false,

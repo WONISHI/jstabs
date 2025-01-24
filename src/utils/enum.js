@@ -31,8 +31,9 @@ export const enumKey = {
   [enumValue.INIT]: 1 << 10 // 初始化事件 1024 (二进制: 10000000000)
 }
 
-export const enumOperation = {
-  ADD: 'add',
-  EDIT: 'edit',
-  DELETE: 'delete'
+export const entryKey = {
+  INIT: 1 << 0,
+  CLOSE_TAB_WINDOW: 1 << 1, // 用户关闭标签页、浏览器窗口 1 (二进制: 00000001)
+  REFRESH: 1 << 2,
+  NAVIGATION: 1 << 3,
 }

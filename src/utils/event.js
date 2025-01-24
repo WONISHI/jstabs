@@ -1,37 +1,34 @@
-import { enumValue, emumStorage, enumOperation } from '@/utils/enum.js'
-import { getenumKey } from '@/utils/index'
+import { enumValue, emumStorage } from '@/utils/enum.js'
+import { getBinaryByKey } from '@/utils/index'
 import storageManager from '@/utils/storeage.js'
 export function eventType(page) {
   // 判断刷新操作
   window.addEventListener('beforeunload', (event) => {
-    console.log(this)
-    const isRefreshed = sessionStorage.getItem('isRefreshed')
-    if (isRefreshed) {
-      // 判断是否为标签页关闭
-      console.log('页面被刷新或导航离开')
-      window.localStorage.setItem('isClose', false)
-    } else {
-      // 这里可以判断标签页是否关闭，依据存储的值
-      console.log('标签页即将关闭')
-      window.localStorage.setItem('isClose', true)
+    if (getBinaryByKey(enumValue.REFRESH) !== this._entry_value) {
+      this._entry_key = enumValue.CLOSE_TAB_WINDOW
+      this._entry_value = getBinaryByKey(enumValue.CLOSE_TAB_WINDOW)
+      this.setPageCode = enumValue.CLOSE_TAB_WINDOW
+      window.localStorage.setItem('setup-page', enumValue.CLOSE_TAB_WINDOW)
     }
   })
-  window.addEventListener('unload', () => {
-    // window.localStorage.setItem('setup-page', JSON.stringify([...getProcedure(), 'unload']))
-  })
   window.addEventListener('load', () => {
-    if (sessionStorage.getItem('isRefreshed')) {
-      this.eventType.eventCode = getenumKey(enumValue.REFRESH)
+    console.log(typeof getBinaryByKey(enumValue.REFRESH),this._entry_value)
+    if (getBinaryByKey(enumValue.REFRESH) === this._entry_value) {
+      this.eventType.eventCode = enumValue.REFRESH
       this.eventType.EventSource = enumValue.REFRESH
       this.eventType.isInit = false
+      this._entry_value = enumValue.REFRESH
+      this._entry_value = getBinaryByKey(enumValue.REFRESH)
       this.triggerEvent(enumValue.REFRESH)
     } else {
-      this.eventType.eventCode = getenumKey(enumValue.INIT)
+      this.eventType.eventCode = enumValue.INIT
       this.eventType.EventSource = enumValue.INIT
       this.eventType.isInit = true
       this.triggerEvent(enumValue.INIT)
     }
-    sessionStorage.setItem('isRefreshed', true)
+    this.setPageCode = enumValue.REFRESH
+    this._entry_value = getBinaryByKey(enumValue.REFRESH)
+    this._entry_key = enumValue.REFRESH
   })
   document.addEventListener('click', (event) => {
     this.clickTrigger.isClick = true
@@ -40,26 +37,26 @@ export function eventType(page) {
     this.triggerEvent(enumValue.CLICK_ELEMENT, event)
   })
   window.addEventListener('line', () => {
-    this.resetClickTrigger()
+    this._resetClickTrigger()
     this.isOnline = true
     // 触发在线事件
     this.triggerEvent(enumValue.ONLINE_OFFLINE)
   })
   window.addEventListener('offline', () => {
-    this.resetClickTrigger()
+    this._resetClickTrigger()
     this.isOnline = false
     // 触发离线事件
     this.triggerEvent(enumValue.ONLINE_OFFLINE)
   })
   window.addEventListener('visibilitychange', () => {
-    this.resetClickTrigger()
+    this._resetClickTrigger()
     this.isVisiable = document.visibilityState === 'visible'
     this.isOver = document.visibilityState === 'hidden'
     // 触发可见监听事件
     this.triggerEvent(enumValue.PAGE_VISIBILITY)
   })
   window.addEventListener('storage', (event) => {
-    this.resetClickTrigger()
+    this._resetClickTrigger()
     // 判断交互动作
     switch (true) {
       case event.oldValue && event.newValue && event.newValue !== event.oldValue:
@@ -77,12 +74,11 @@ export function eventType(page) {
 // 监听外部修改localStorage和sessionStorage
 function changeStorage(event) {
   if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
-  console.log(storageManager)
   if (!storageManager.isInternalOperation) {
     if (event.key === emumStorage.UUID_PAGE_LIST) {
       // this.setPageCodeList = JSON.parse(event.oldValue)
     } else {
-      this.setPageCode = event.oldValue
+      // this.setPageCode = event.oldValue
     }
   }
 }
