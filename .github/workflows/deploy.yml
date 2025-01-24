@@ -3,7 +3,7 @@ name: pull-network-policy
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
