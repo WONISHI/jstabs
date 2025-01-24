@@ -12,102 +12,102 @@ import { combineField, decomposeField } from '@/utils/dataStructures/index'
 // import '@/utils/rewrite.js'
 
 class JsTabs {
-  static _eventCallbacks = new Map()
-  constructor() {
-    if (JsTabs.instance) {
-      return JsTabs.instance
+    static _eventCallbacks = new Map()
+    constructor() {
+        if (JsTabs.instance) {
+            return JsTabs.instance
+        }
+        // 初始化监听
+        eventType.call(this, this.getPageCode)
+        // 初始化方法
+        this.init()
+        // 重置状态
+        this._resetStatus()
+
+        // 绑定this
+        this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.INIT)
+        this._entry_value = getBinaryByKey(this._entry_key)
+        JsTabs.instance = this
     }
-    // 初始化监听
-    eventType.call(this, this.getPageCode)
-    // 初始化方法
-    this.init()
+
+    init() {
+        if (!this.getPageCode) this.setPageCode = this._entry_key
+        if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
+    }
+
+    // 触发事件并调用所有注册的回调
+    triggerEvent(eventType, ...args) {
+        // 获取与事件类型相关的所有回调
+        const eventTypeKey = this.setFunName(eventType)
+        const callbacks = JsTabs._eventCallbacks.get(eventTypeKey) || []
+        callbacks.forEach((callback) => callback(...args)) // 执行回调并传递事件对象
+    }
+
+    // 注册回调
+    watch(eventType, callback) {
+        const eventTypeKey = this.setFunName(eventType)
+        if (!JsTabs._eventCallbacks.has(eventTypeKey)) {
+            JsTabs._eventCallbacks.set(eventTypeKey, [])
+        }
+        const eventCallbacks = JsTabs._eventCallbacks.get(eventTypeKey)
+        eventCallbacks.push(callback) // 将回调添加到事件类型的回调数组中
+    }
+
+    setFunName(eventType) {
+        return eventType.toLowerCase()
+    }
+
+    // 设置页面初始化uuid
+    get getPageCode() {
+        return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
+    }
+    set setPageCode(EntryKey) {
+        storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
+    }
+
+    // 获取项目初始化uuid列表
+    get getPageCodeList() {
+        return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)) : []
+    }
+
+    set setPageCodeList(pageCodeList) {
+        // 判断是对象还是数组
+        if (typeOf(pageCodeList) === 'object') {
+            storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
+        } else if (typeOf(pageCodeList) === 'array') {
+            storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify(pageCodeList))
+        }
+    }
+
+    // 获取对应页面在项目列表的uuid的哪项
+    get getPageCodeIndex() {
+        return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item) => item.uuid === this.getPageCode) : -1
+    }
+
     // 重置状态
-    this._resetStatus()
-
-    // 绑定this
-    this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.INIT)
-    this._entry_value = getBinaryByKey(this._entry_key)
-    JsTabs.instance = this
-  }
-
-  init() {
-    if (!this.getPageCode) this.setPageCode = this._entry_key
-    if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
-  }
-
-  // 触发事件并调用所有注册的回调
-  triggerEvent(eventType, ...args) {
-    // 获取与事件类型相关的所有回调
-    const eventTypeKey = this.setFunName(eventType)
-    const callbacks = JsTabs._eventCallbacks.get(eventTypeKey) || []
-    callbacks.forEach((callback) => callback(...args)) // 执行回调并传递事件对象
-  }
-
-  // 注册回调
-  watch(eventType, callback) {
-    const eventTypeKey = this.setFunName(eventType)
-    if (!JsTabs._eventCallbacks.has(eventTypeKey)) {
-      JsTabs._eventCallbacks.set(eventTypeKey, [])
+    _resetStatus() {
+        this.eventType = {
+            eventCode: enumValue.INIT, //触发事件的code
+            EventSource: enumValue.INIT, //触发事件的字段名
+            isInit: true, // 是否已经初始化了
+            triggerRefresh: false, // 是否触发刷新了
+            triggerClose: false, // 是否触发页签关闭
+            triggerUrl: false, // 是否触发了url变化
+            process: []
+        }
+        this.isOnline = true // 是否在线
+        this.isVisiable = true // 是否可见
+        this.isOver = false // 是否离开
+        this._resetClickTrigger()
     }
-    const eventCallbacks = JsTabs._eventCallbacks.get(eventTypeKey)
-    eventCallbacks.push(callback) // 将回调添加到事件类型的回调数组中
-  }
 
-  setFunName(eventType) {
-    return eventType.toLowerCase()
-  }
-
-  // 设置页面初始化uuid
-  get getPageCode() {
-    return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
-  }
-  set setPageCode(EntryKey) {
-    storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
-  }
-
-  // 获取项目初始化uuid列表
-  get getPageCodeList() {
-    return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)) : []
-  }
-
-  set setPageCodeList(pageCodeList) {
-    // 判断是对象还是数组
-    if (typeOf(pageCodeList) === 'object') {
-      storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
-    } else if (typeOf(pageCodeList) === 'array') {
-      storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify(pageCodeList))
+    _resetClickTrigger() {
+        this.clickTrigger = {
+            isClick: false,
+            isMouse: false,
+            target: null
+        }
     }
-  }
-
-  // 获取对应页面在项目列表的uuid的哪项
-  get getPageCodeIndex() {
-    return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item) => item.uuid === this.getPageCode) : -1
-  }
-
-  // 重置状态
-  _resetStatus() {
-    this.eventType = {
-      eventCode: enumValue.INIT, //触发事件的code
-      EventSource: enumValue.INIT, //触发事件的字段名
-      isInit: true, // 是否已经初始化了
-      triggerRefresh: false, // 是否触发刷新了
-      triggerClose: false, // 是否触发页签关闭
-      triggerUrl: false, // 是否触发了url变化
-      process: []
-    }
-    this.isOnline = true // 是否在线
-    this.isVisiable = true // 是否可见
-    this.isOver = false // 是否离开
-    this._resetClickTrigger()
-  }
-
-  _resetClickTrigger() {
-    this.clickTrigger = {
-      isClick: false,
-      isMouse: false,
-      target: null
-    }
-  }
 }
 
 // 单例模式导出
