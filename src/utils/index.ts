@@ -1,17 +1,19 @@
 import { entryKey } from '../constant'
 /**
  * @description 生成UUID
- * @returns 
+ * @returns
  */
-export function generateUUID() {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16))
+export function generateUUID(): string {
+    //@ts-ignore
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).toString().replace(/[018]/g, (c: number) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16))
 }
+
 /**
  * @description 二进制转十进制
- * @param {*} binary 
- * @returns 
+ * @param {*} binary
+ * @returns
  */
-export function binaryToDecimal(binary) {
+export function binaryToDecimal(binary: string) {
     let decimal = 0
     let power = 0
     for (let i = binary.length - 1; i >= 0; i--) {
@@ -24,10 +26,10 @@ export function binaryToDecimal(binary) {
 }
 /**
  * @description 根据key获取二进制
- * @param {*} key 
- * @returns 
+ * @param {*} key
+ * @returns
  */
-export function getBinaryByKey(key = 'INIT') {
+export function getBinaryByKey(key : keyof typeof entryKey = 'INIT') {
     const value = entryKey[key]
     if (value === undefined) {
         throw new Error(`Invalid key: ${key}`)
@@ -36,18 +38,18 @@ export function getBinaryByKey(key = 'INIT') {
 }
 /**
  * @description 根据二进制获取key
- * @param {*} Binary 
- * @returns 
+ * @param {*} Binary
+ * @returns
  */
-export function getKeyByBinary(Binary) {
+export function getKeyByBinary(Binary: string) {
     let findIndex = Object.values(entryKey).findIndex((key) => key === binaryToDecimal(Binary))
     return Object.keys(entryKey)[findIndex]
 }
 /**
  * @description 获取类型
- * @param {*} value 
- * @returns 
+ * @param {*} value
+ * @returns
  */
-export function typeOf(value) {
+export function typeOf(value: any) {
     return Object.prototype.toString.call(value).slice(8, -1).toLowerCase()
 }

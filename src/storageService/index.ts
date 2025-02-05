@@ -1,5 +1,12 @@
 // 对
 class StorageManager {
+    // 静态实例
+    // 静态实例
+    static instance: StorageManager | null = null
+    private _localStorage: Storage | null = null
+    private _sessionStorage: Storage | null = null
+    private _entry_value: string = ''
+    private isInternalOperation: boolean = false
     constructor() {
         if (StorageManager.instance) {
             return StorageManager.instance
@@ -10,40 +17,40 @@ class StorageManager {
     }
 
     // 创建受保护的代理
-    _createProtectedStorage(storage) {
+    _createProtectedStorage(storage: Storage) {
         return new Proxy(storage, {
-            deleteProperty: (target, prop) => {
+            deleteProperty: (target: Storage, prop: PropertyKey) => {
                 if (!this.isInternalOperation) {
-                    console.warn(`Attempt to delete storage key ${prop} was blocked.`)
+                    console.warn(`Attempt to delete storage key ${String(prop)} was blocked.`)
                     return false
                 }
-                delete target[prop]
-                this._triggerStorageEvent(prop)
+                target.removeItem(String(prop))
+                this._triggerStorageEvent(String(prop))
                 return true
             },
             get: (target, prop) => {
                 if (!this.isInternalOperation) {
-                    console.warn(`Attempt to read storage key ${prop} was blocked.`)
+                    console.warn(`Attempt to read storage key ${String(prop)} was blocked.`)
                     return undefined
                 }
-                const method = target[prop]
+                const method = target[String(prop)]
                 if (typeof method === 'function') {
-                    return (...args) => {
+                    return (...args: any[]) => {
                         const result = method.apply(target, args)
-                        this._triggerStorageEvent(prop, result)
+                        this._triggerStorageEvent(String(prop), result)
                         if (result === undefined) {
                             return true
                         }
                         return result
                     }
                 }
-                return prop in target ? target[prop] : undefined
+                return prop in target ? target[String(prop)] : undefined
             }
         })
     }
 
     // 手动触发 storage 事件
-    _triggerStorageEvent(key, newValue = null) {
+    _triggerStorageEvent(key: string, newValue: any = null) {
         const event = new StorageEvent('storage', {
             key,
             oldValue: window.localStorage.getItem(key),
@@ -55,39 +62,39 @@ class StorageManager {
         window.dispatchEvent(event)
     }
 
-    setInternalFlag(flag) {
+    setInternalFlag(flag: boolean) {
         this.isInternalOperation = flag
     }
 
-    internalSetItem(key, value) {
+    internalSetItem(key: string, value: string) {
         this.setInternalFlag(true) // 开启内部操作
-        this._localStorage.setItem(key, value)
+        this._localStorage!.setItem(key, value)
         this.setInternalFlag(false) // 关闭内部操作
     }
-    internalRemoveItem(key) {
+    internalRemoveItem(key: string) {
         this.setInternalFlag(true) // 开启内部操作
-        this._localStorage.removeItem(key)
+        this._localStorage!.removeItem(key)
         this.setInternalFlag(false) // 关闭内部操作
     }
-    internalGetItem(key) {
+    internalGetItem(key: string): string | null {
         this.setInternalFlag(true) // 开启内部操作
-        const value = this._localStorage.getItem(key)
+        const value = this._localStorage!.getItem(key)
         this.setInternalFlag(false) // 关闭内部操作
         return value
     }
-    internalSetSessionItem(key, value) {
+    internalSetSessionItem(key: string, value: string) {
         this.setInternalFlag(true) // 开启内部操作
-        this._sessionStorage.setItem(key, value)
+        this._sessionStorage!.setItem(key, value)
         this.setInternalFlag(false) // 关闭内部操作
     }
-    internalRemoveSessionItem(key) {
+    internalRemoveSessionItem(key: string) {
         this.setInternalFlag(true) // 开启内部操作
-        this._sessionStorage.removeItem(key)
+        this._sessionStorage!.removeItem(key)
         this.setInternalFlag(false) // 关闭内部操作
     }
-    internalGetSessionItem(key) {
+    internalGetSessionItem(key: string): string | null {
         this.setInternalFlag(true) // 开启内部操作
-        const value = this._sessionStorage.getItem(key)
+        const value = this._sessionStorage!.getItem(key)
         this.setInternalFlag(false) // 关闭内部操作
         return value
     }

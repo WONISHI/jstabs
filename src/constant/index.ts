@@ -2,7 +2,7 @@ export const emumStorage = {
     UUID_PAGE: 'uuid-page',
     UUID_PAGE_LIST: 'uuid-page-list',
     BROADCAST_MSG: 'channel-page'
-}
+} as const
 
 export const enumValue = {
     DEFAULTS: 'DEFAULTS', //刚进入状态
@@ -17,7 +17,7 @@ export const enumValue = {
     STORAGE_EVENT: 'STORAGE_EVENT', // storage事件 256 (二进制: 100000000)
     ONLINE_OFFLINE: 'ONLINE_OFFLINE', // online 和 offline 事件 512 (二进制: 1000000000)
     INIT: 'INIT' // 初始化事件 1024 (二进制: 10000000000)
-}
+} as const
 
 export const enumKey = {
     [enumValue.DEFAULTS]: 0 << 0,
@@ -32,7 +32,7 @@ export const enumKey = {
     [enumValue.STORAGE_EVENT]: 1 << 8, // storage事件 256 (二进制: 100000000)
     [enumValue.ONLINE_OFFLINE]: 1 << 9, // online 和 offline 事件 512 (二进制: 1000000000)
     [enumValue.INIT]: 1 << 10 // 初始化事件 1024 (二进制: 10000000000)
-}
+} as const
 
 export const entryKey = {
     INIT: 1 << 0,
@@ -40,4 +40,16 @@ export const entryKey = {
     REFRESH: 1 << 2,
     NAVIGATION: 1 << 3,
     DEFAULTS: 0 << 0
-}
+} as const
+
+// 定义 `emumStorage` 的类型
+export type EmumStorage = typeof emumStorage[keyof typeof emumStorage];
+
+// 定义 `enumValue` 的类型
+export type EnumValue = keyof typeof enumValue;
+
+// 定义 `enumKey` 的类型
+export type EnumKey = typeof enumKey[keyof typeof enumKey];
+
+// 定义 `entryKey` 的类型
+export type EntryKey = typeof entryKey[keyof typeof entryKey];

@@ -1,9 +1,9 @@
 import { generateUUID, getBinaryByKey } from '@/utils'
-import { emumStorage } from '@/constant'
+import { emumStorage, type EnumValue } from '@/constant'
 import storageManager from '@/storageService'
-const DefaultStatus = 'DEFAULTS'
+const DefaultStatus: EnumValue = 'DEFAULTS'
 //合并字段
-export function combineField(status = DefaultStatus) {
+export function combineField(status: EnumValue = DefaultStatus) {
     return `${generateUUID()}-${getBinaryByKey(status)}`
 }
 

@@ -6,14 +6,18 @@
  */
 import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
 import { eventType } from '@/eventListeners'
-import { enumValue, emumStorage } from '@/constant'
+import { enumValue, emumStorage } from '@/constant/index'
 import storageManager from '@/storageService'
 import { combineField, decomposeField } from '@/dataStructures'
 import openBroadcast from '@/broadcastListeners'
 
 class JsTabs {
-    static _eventCallbacks = new Map()
-    static _eventChannel = null
+    static _eventCallbacks: Map<string, Function> = new Map()
+    static _eventChannel: BroadcastChannel | null = null
+    private _entry_key: string = ''
+    private _entry_value: string = ''
+    // 静态实例
+    static instance: JsTabs | null = null
     constructor() {
         if (JsTabs.instance) {
             return JsTabs.instance
@@ -37,11 +41,11 @@ class JsTabs {
     }
 
     // 触发事件并调用所有注册的回调
-    triggerEvent(eventType, ...args) {
+    triggerEvent(eventType, ...args: any[]) {
         // 获取与事件类型相关的所有回调
         const eventTypeKey = this.setFunName(eventType)
         const callbacks = JsTabs._eventCallbacks.get(eventTypeKey) || []
-        callbacks.forEach((callback) => callback(...args)) // 执行回调并传递事件对象
+        callbacks.forEach((callback: any) => callback(...args)) // 执行回调并传递事件对象
     }
 
     // 注册回调
