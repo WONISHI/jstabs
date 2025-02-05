@@ -1,7 +1,9 @@
 import { enumValue, emumStorage, enumKey } from '@/constant'
 import { getBinaryByKey } from '@/utils'
 import storageManager from '@/storageService'
-export function eventType(page) {
+export function eventType(page, channel) {
+    const pageCode = JSON.parse(JSON.stringify(page))
+    console.log('pageCode', pageCode)
     // 判断刷新操作
     window.addEventListener('unload', () => {
         this.eventType.eventCode = enumValue.CLOSE_TAB_WINDOW
@@ -10,6 +12,7 @@ export function eventType(page) {
         this._entry_key = enumValue.CLOSE_TAB_WINDOW
         this._entry_value = getBinaryByKey(enumValue.CLOSE_TAB_WINDOW)
         this.triggerEvent(enumValue.CLOSE_TAB_WINDOW)
+        channel.postMessage({ type: enumValue.CLOSE_TAB_WINDOW, content: pageCode })
         window.localStorage.setItem('STATUS', this._entry_value)
     })
     // 进入页面判断是否已经初始化
@@ -33,8 +36,6 @@ export function eventType(page) {
             this._entry_value = getBinaryByKey(enumValue.INIT)
             // 更新刷新后的状态
             this.setPageCode = enumValue.INIT
-            this._entry_value = getBinaryByKey(enumValue.INIT)
-            this._entry_key = enumValue.INIT
         }
     })
     document.addEventListener('click', (event) => {
@@ -63,7 +64,6 @@ export function eventType(page) {
         this.triggerEvent(enumValue.PAGE_VISIBILITY)
     })
     window.addEventListener('storage', (event) => {
-        // console.log('触发监听')
         this._resetClickTrigger()
         // 判断交互动作
         switch (true) {
@@ -82,12 +82,12 @@ export function eventType(page) {
 // 监听外部修改localStorage和sessionStorage
 function changeStorage(event) {
     if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
-    console.log(this)
     if (!storageManager.isInternalOperation && !this.eventType.isInit) {
         if (event.key === emumStorage.UUID_PAGE_LIST) {
             // this.setPageCodeList = JSON.parse(event.oldValue)
-            // console.log('我让你触发')
+            console.log('我让你触发')
         } else {
+            console.log('进来了')
             this.setPageCode = event.oldValue
         }
     }

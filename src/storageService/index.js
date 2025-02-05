@@ -31,7 +31,6 @@ class StorageManager {
                     return (...args) => {
                         const result = method.apply(target, args)
                         this._triggerStorageEvent(prop, result)
-                        // console.log(result, 1111, prop,target)
                         if (result === undefined) {
                             return true
                         }

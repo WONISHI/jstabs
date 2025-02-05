@@ -1,14 +1,11 @@
+import { emumStorage } from '@/constant'
 export default function openBroadcast() {
-    console.log('开启广播')
-    bc = new BroadcastChannel('cctv')
-
-    // 接收广播
-    bc.onmessage = function (e) {
-        alert(e.data)
-    }
-
-    // 异常处理
-    bc.onmessageerror = function (e) {
-        console.warn('onmessageerror')
-    }
+    const channel = new BroadcastChannel(emumStorage.BROADCAST_MSG)
+    channel.addEventListener('message', (event) => {
+        if (event.data.type === 'CLOSE_TAB_WINDOW') {
+            const newValue = this.getPageCodeList.filter((item) => item.uuid !== event.data.content)
+            this.setPageCodeList = newValue
+        }
+    })
+    return channel
 }

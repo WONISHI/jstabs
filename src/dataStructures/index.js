@@ -10,7 +10,6 @@ export function combineField(status = DefaultStatus) {
 // 拆解字段
 export function decomposeField(pageCode = storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)) {
     const defaultStatus = getBinaryByKey(DefaultStatus)
-    console.log(defaultStatus,DefaultStatus)
     if (!pageCode) {
         return {
             uuid: null,

@@ -10,10 +10,10 @@ import { enumValue, emumStorage } from '@/constant'
 import storageManager from '@/storageService'
 import { combineField, decomposeField } from '@/dataStructures'
 import openBroadcast from '@/broadcastListeners'
-// import '@/utils/rewrite.js'
 
 class JsTabs {
     static _eventCallbacks = new Map()
+    static _eventChannel = null
     constructor() {
         if (JsTabs.instance) {
             return JsTabs.instance
@@ -21,18 +21,17 @@ class JsTabs {
         // 绑定this
         this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.DEFAULTS)
         this._entry_value = getBinaryByKey(this._entry_key)
-        // // 初始化监听
-        eventType.call(this, this.getPageCode)
         // // 初始化方法
         this.init()
+        JsTabs._eventChannel = openBroadcast.call(this)
+        // // 初始化监听
+        eventType.call(this, this.getPageCode, JsTabs._eventChannel)
         // // 重置状态
         this._resetStatus()
-
         JsTabs.instance = this
     }
 
     init() {
-        console.log(this.getPageCode)
         if (!this.getPageCode) this.setPageCode = this._entry_key
         if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
     }
