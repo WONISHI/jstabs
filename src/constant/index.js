@@ -1,6 +1,7 @@
 export const emumStorage = {
     UUID_PAGE: 'uuid-page',
-    UUID_PAGE_LIST: 'uuid-page-list'
+    UUID_PAGE_LIST: 'uuid-page-list',
+    BROADCAST_MSG:'channel-page'
 }
 
 export const enumValue = {

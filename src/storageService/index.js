@@ -18,6 +18,7 @@ class StorageManager {
                     return false
                 }
                 delete target[prop]
+                this._triggerStorageEvent(prop)
                 return true
             },
             get: (target, prop) => {
@@ -29,6 +30,8 @@ class StorageManager {
                 if (typeof method === 'function') {
                     return (...args) => {
                         const result = method.apply(target, args)
+                        this._triggerStorageEvent(prop, result)
+                        // console.log(result, 1111, prop,target)
                         if (result === undefined) {
                             return true
                         }
@@ -38,6 +41,19 @@ class StorageManager {
                 return prop in target ? target[prop] : undefined
             }
         })
+    }
+
+    // 手动触发 storage 事件
+    _triggerStorageEvent(key, newValue = null) {
+        const event = new StorageEvent('storage', {
+            key,
+            oldValue: window.localStorage.getItem(key),
+            newValue,
+            url: window.location.href,
+            storageArea: window.localStorage
+        })
+        // 触发 storage 事件
+        window.dispatchEvent(event)
     }
 
     setInternalFlag(flag) {

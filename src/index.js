@@ -9,6 +9,7 @@ import { eventType } from '@/eventListeners'
 import { enumValue, emumStorage } from '@/constant'
 import storageManager from '@/storageService'
 import { combineField, decomposeField } from '@/dataStructures'
+import openBroadcast from '@/broadcastListeners'
 // import '@/utils/rewrite.js'
 
 class JsTabs {
@@ -59,6 +60,7 @@ class JsTabs {
 
     // 设置页面初始化uuid
     get getPageCode() {
+        console.log(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid,1111111)
         return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
     }
     set setPageCode(EntryKey) {
@@ -71,6 +73,7 @@ class JsTabs {
     }
 
     set setPageCodeList(pageCodeList) {
+        console.log('触发几次', pageCodeList)
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
             storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))

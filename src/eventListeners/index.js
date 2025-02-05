@@ -3,29 +3,36 @@ import { getBinaryByKey } from '@/utils'
 import storageManager from '@/storageService'
 export function eventType(page) {
     // 判断刷新操作
-    window.addEventListener('beforeunload', (event) => {
-        if (getBinaryByKey(enumValue.REFRESH) !== this._entry_value) {
-            this._entry_key = enumValue.CLOSE_TAB_WINDOW
-            this._entry_value = getBinaryByKey(enumValue.CLOSE_TAB_WINDOW)
-            this.setPageCode = enumValue.CLOSE_TAB_WINDOW
-            window.localStorage.setItem('setup-page', enumValue.CLOSE_TAB_WINDOW)
-        }
+    window.addEventListener('unload', () => {
+        this.eventType.eventCode = enumValue.CLOSE_TAB_WINDOW
+        this.eventType.EventSource = enumValue.CLOSE_TAB_WINDOW
+        this.eventType.isInit = false
+        this._entry_value = enumValue.CLOSE_TAB_WINDOW
+        this._entry_value = getBinaryByKey(enumValue.CLOSE_TAB_WINDOW)
+        this.triggerEvent(enumValue.CLOSE_TAB_WINDOW)
+        window.localStorage.setItem('STATUS', this._entry_value)
     })
     window.addEventListener('load', () => {
-        console.log(typeof getBinaryByKey(enumValue.REFRESH), this._entry_value)
+        // 刷新
         if (getBinaryByKey(enumValue.REFRESH) === this._entry_value) {
             this.eventType.eventCode = enumValue.REFRESH
             this.eventType.EventSource = enumValue.REFRESH
             this.eventType.isInit = false
             this._entry_value = enumValue.REFRESH
             this._entry_value = getBinaryByKey(enumValue.REFRESH)
+            console.log('刷新',this)
             this.triggerEvent(enumValue.REFRESH)
         } else {
+            // 初始化
             this.eventType.eventCode = enumValue.INIT
             this.eventType.EventSource = enumValue.INIT
             this.eventType.isInit = true
             this.triggerEvent(enumValue.INIT)
+            this._entry_value = enumValue.INIT
+            this._entry_value = getBinaryByKey(enumValue.INIT)
+            console.log(this,9999999)
         }
+        // 更新刷新后的状态
         this.setPageCode = enumValue.REFRESH
         this._entry_value = getBinaryByKey(enumValue.REFRESH)
         this._entry_key = enumValue.REFRESH
@@ -56,6 +63,7 @@ export function eventType(page) {
         this.triggerEvent(enumValue.PAGE_VISIBILITY)
     })
     window.addEventListener('storage', (event) => {
+        // console.log('触发监听')
         this._resetClickTrigger()
         // 判断交互动作
         switch (true) {
@@ -74,11 +82,14 @@ export function eventType(page) {
 // 监听外部修改localStorage和sessionStorage
 function changeStorage(event) {
     if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
-    if (!storageManager.isInternalOperation) {
+    // console.log(storageManager.isInternalOperation,this)
+    // debugger;
+    if (!storageManager.isInternalOperation && !this.eventType.isInit) {
         if (event.key === emumStorage.UUID_PAGE_LIST) {
             // this.setPageCodeList = JSON.parse(event.oldValue)
+            // console.log('我让你触发')
         } else {
-            // this.setPageCode = event.oldValue
+            this.setPageCode = event.oldValue
         }
     }
 }
