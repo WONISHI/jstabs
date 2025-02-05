@@ -18,20 +18,21 @@ class JsTabs {
         if (JsTabs.instance) {
             return JsTabs.instance
         }
-        // 初始化监听
+        // 绑定this
+        this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.DEFAULTS)
+        this._entry_value = getBinaryByKey(this._entry_key)
+        // // 初始化监听
         eventType.call(this, this.getPageCode)
-        // 初始化方法
+        // // 初始化方法
         this.init()
-        // 重置状态
+        // // 重置状态
         this._resetStatus()
 
-        // 绑定this
-        this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.INIT)
-        this._entry_value = getBinaryByKey(this._entry_key)
         JsTabs.instance = this
     }
 
     init() {
+        console.log(this.getPageCode)
         if (!this.getPageCode) this.setPageCode = this._entry_key
         if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
     }
@@ -60,11 +61,14 @@ class JsTabs {
 
     // 设置页面初始化uuid
     get getPageCode() {
-        console.log(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid,1111111)
         return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
     }
     set setPageCode(EntryKey) {
-        storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
+        if (this.getPageCode) {
+            storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, this.getPageCode + '-' + getBinaryByKey(EntryKey))
+        } else {
+            storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
+        }
     }
 
     // 获取项目初始化uuid列表
@@ -73,7 +77,6 @@ class JsTabs {
     }
 
     set setPageCodeList(pageCodeList) {
-        console.log('触发几次', pageCodeList)
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
             storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
@@ -90,9 +93,9 @@ class JsTabs {
     // 重置状态
     _resetStatus() {
         this.eventType = {
-            eventCode: enumValue.INIT, //触发事件的code
-            EventSource: enumValue.INIT, //触发事件的字段名
-            isInit: true, // 是否已经初始化了
+            eventCode: enumValue.DEFAULTS, //触发事件的code
+            EventSource: enumValue.DEFAULTS, //触发事件的字段名
+            isInit: false, // 是否已经初始化了
             triggerRefresh: false, // 是否触发刷新了
             triggerClose: false, // 是否触发页签关闭
             triggerUrl: false, // 是否触发了url变化

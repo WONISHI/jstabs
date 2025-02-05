@@ -1,10 +1,11 @@
 export const emumStorage = {
     UUID_PAGE: 'uuid-page',
     UUID_PAGE_LIST: 'uuid-page-list',
-    BROADCAST_MSG:'channel-page'
+    BROADCAST_MSG: 'channel-page'
 }
 
 export const enumValue = {
+    DEFAULTS: 'DEFAULTS', //刚进入状态
     CLOSE_TAB_WINDOW: 'CLOSE_TAB_WINDOW', // 用户关闭标签页、浏览器窗口 1 (二进制: 00000001)
     NAVIGATION: 'NAVIGATION', // 导航到其他页面 2 (二进制: 00000010)
     REFRESH: 'REFRESH', // 刷新页面 4 (二进制: 00000100)
@@ -19,6 +20,7 @@ export const enumValue = {
 }
 
 export const enumKey = {
+    [enumValue.DEFAULTS]: 0 << 0,
     [enumValue.CLOSE_TAB_WINDOW]: 1 << 0, // 用户关闭标签页、浏览器窗口 1 (二进制: 00000001)
     [enumValue.NAVIGATION]: 1 << 1, // 导航到其他页面 2 (二进制: 00000010)
     [enumValue.REFRESH]: 1 << 2, // 刷新页面 4 (二进制: 00000100)
@@ -36,5 +38,6 @@ export const entryKey = {
     INIT: 1 << 0,
     CLOSE_TAB_WINDOW: 1 << 1, // 用户关闭标签页、浏览器窗口 1 (二进制: 00000001)
     REFRESH: 1 << 2,
-    NAVIGATION: 1 << 3
+    NAVIGATION: 1 << 3,
+    DEFAULTS: 0 << 0
 }

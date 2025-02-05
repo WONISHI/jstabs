@@ -1,15 +1,16 @@
 import { generateUUID, getBinaryByKey } from '@/utils'
 import { emumStorage } from '@/constant'
 import storageManager from '@/storageService'
-const defaultStatus = 'INIT'
+const DefaultStatus = 'DEFAULTS'
 //合并字段
-export function combineField(status = defaultStatus) {
+export function combineField(status = DefaultStatus) {
     return `${generateUUID()}-${getBinaryByKey(status)}`
 }
 
 // 拆解字段
 export function decomposeField(pageCode = storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)) {
-    const defaultStatus = getBinaryByKey(defaultStatus)
+    const defaultStatus = getBinaryByKey(DefaultStatus)
+    console.log(defaultStatus,DefaultStatus)
     if (!pageCode) {
         return {
             uuid: null,
