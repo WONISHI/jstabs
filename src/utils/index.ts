@@ -5,7 +5,11 @@ import { entryKey } from '../constant'
  */
 export function generateUUID(): string {
     //@ts-ignore
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).toString().replace(/[018]/g, (c: number) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16))
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11)
+        .toString()
+        .replace(/[018]/g, (c: number) =>
+            (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+        )
 }
 
 /**
@@ -29,7 +33,7 @@ export function binaryToDecimal(binary: string) {
  * @param {*} key
  * @returns
  */
-export function getBinaryByKey(key: string | keyof typeof entryKey = 'INIT'):string {
+export function getBinaryByKey(key: string | keyof typeof entryKey = 'INIT'): string {
     const value = entryKey[key as keyof typeof entryKey]
     if (value === undefined) {
         throw new Error(`Invalid key: ${key}`)
@@ -52,4 +56,14 @@ export function getKeyByBinary(Binary: string) {
  */
 export function typeOf(value: any) {
     return Object.prototype.toString.call(value).slice(8, -1).toLowerCase()
+}
+
+export function deepFreeze(obj: any) {
+    Object.freeze(obj)
+    Object.keys(obj).forEach((key) => {
+        console.log(obj[key])
+        if (typeof obj[key] === 'object' && obj[key] !== null && !Object.isFrozen(obj[key])) {
+            deepFreeze(obj[key])
+        }
+    })
 }

@@ -43,13 +43,13 @@ export const entryKey = {
 } as const
 
 // 定义 `emumStorage` 的类型
-export type EmumStorage = typeof emumStorage[keyof typeof emumStorage];
+export type EmumStorage = (typeof emumStorage)[keyof typeof emumStorage]
 
 // 定义 `enumValue` 的类型
-export type EnumValue = keyof typeof enumValue;
+export type EnumValue = keyof typeof enumValue
 
 // 定义 `enumKey` 的类型
-export type EnumKey = typeof enumKey[keyof typeof enumKey];
+export type EnumKey = (typeof enumKey)[keyof typeof enumKey]
 
 // 定义 `entryKey` 的类型
-export type EntryKey = typeof entryKey[keyof typeof entryKey];
+export type EntryKey = (typeof entryKey)[keyof typeof entryKey]

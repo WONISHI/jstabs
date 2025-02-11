@@ -4,7 +4,7 @@
  * 如果控制台清理sessionStorage，那么需要监听sessionStorage，然后内部执行初始化再存储一遍，然后塞值，其他页面监听到localStorage变会向新增的页面发送消息监听到
  * 的消息然后更新localStorage
  */
-import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
+import { typeOf, getBinaryByKey, getKeyByBinary, deepFreeze } from './utils'
 import { eventType } from '@/eventListeners'
 import { enumValue, emumStorage, entryKey, type EnumValue } from '@/constant/index'
 import storageManager from '@/storageService'
@@ -28,7 +28,9 @@ export class JsTabs {
             return JsTabs.instance
         }
         // 绑定this
-        this._entry_key = getKeyByBinary(decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.DEFAULTS)
+        this._entry_key = getKeyByBinary(
+            decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).status || enumValue.DEFAULTS
+        )
         this._entry_value = getBinaryByKey(this._entry_key)
         // // 初始化方法
         this.init()
@@ -37,6 +39,7 @@ export class JsTabs {
         eventType.call(this, this.getPageCode, JsTabs._eventChannel)
         // // 重置状态
         this._resetStatus()
+        // deepFreeze(this)
         JsTabs.instance = this
     }
 
@@ -86,7 +89,10 @@ export class JsTabs {
     }
     set setPageCode(EntryKey: EnumValue) {
         if (this.getPageCode) {
-            storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, this.getPageCode + '-' + getBinaryByKey(EntryKey))
+            storageManager.internalSetSessionItem(
+                emumStorage.UUID_PAGE,
+                this.getPageCode + '-' + getBinaryByKey(EntryKey)
+            )
         } else {
             storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, combineField(EntryKey))
         }
@@ -94,13 +100,18 @@ export class JsTabs {
 
     // 获取项目初始化uuid列表
     get getPageCodeList() {
-        return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) as string) : []
+        return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)
+            ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) as string)
+            : []
     }
 
     set setPageCodeList(pageCodeList: { uuid: string } | { uuid: string }[]) {
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
-            storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
+            storageManager.internalSetItem(
+                emumStorage.UUID_PAGE_LIST,
+                JSON.stringify([...this.getPageCodeList, pageCodeList])
+            )
         } else if (typeOf(pageCodeList) === 'array') {
             storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify(pageCodeList))
         }
@@ -108,7 +119,9 @@ export class JsTabs {
 
     // 获取对应页面在项目列表的uuid的哪项
     get getPageCodeIndex() {
-        return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item: TabsPage) => item.uuid === this.getPageCode) : -1
+        return this.getPageCodeList.length
+            ? this.getPageCodeList.findIndex((item: TabsPage) => item.uuid === this.getPageCode)
+            : -1
     }
 
     // 重置状态

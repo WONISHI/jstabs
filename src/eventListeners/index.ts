@@ -5,7 +5,6 @@ import { JsTabs } from '@/index'
 type JsTabsInstance = InstanceType<typeof JsTabs>
 export function eventType(this: JsTabsInstance, page: string, channel: BroadcastChannel | null) {
     const pageCode = JSON.parse(JSON.stringify(page))
-    console.log('pageCode', pageCode)
     // 判断刷新操作
     window.addEventListener('unload', () => {
         this.eventType!.eventCode = enumValue.CLOSE_TAB_WINDOW
@@ -13,9 +12,13 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
         this.eventType!.isInit = false
         this._entry_key = enumValue.CLOSE_TAB_WINDOW
         this._entry_value = getBinaryByKey(enumValue.CLOSE_TAB_WINDOW)
-        this.triggerEvent(enumValue.CLOSE_TAB_WINDOW);
-        (channel as BroadcastChannel).postMessage({ type: enumValue.CLOSE_TAB_WINDOW, content: pageCode })
-        window.localStorage.setItem('STATUS', this._entry_value)
+        this.triggerEvent(enumValue.CLOSE_TAB_WINDOW)
+        // 当页面全部关闭的话
+        if (this.getPageCodeList.length === 1) {
+            storageManager.internalRemoveItem(emumStorage.UUID_PAGE_LIST)
+        } else {
+            ;(channel as BroadcastChannel).postMessage({ type: enumValue.CLOSE_TAB_WINDOW, content: pageCode })
+        }
     })
     // 进入页面判断是否已经初始化
     window.addEventListener('load', () => {
@@ -83,19 +86,21 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
 
 // 监听外部修改localStorage和sessionStorage
 function changeStorage(this: JsTabsInstance, event: StorageEvent) {
+    console.log(event.isTrusted)
     if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
-    if (!storageManager.isInternalOperation && !this.eventType!.isInit) {
+    if (!storageManager.isInternalOperation && event.isTrusted) {
         if (event.key === emumStorage.UUID_PAGE_LIST) {
-            // this.setPageCodeList = JSON.parse(event.oldValue);
-            console.log('我让你触发')
-        } else {
-            console.log('进来了')
-            const oldValue = event.oldValue as string | undefined
-            if (oldValue && Object.values(enumValue).includes(oldValue as any)) {
-                this.setPageCode = oldValue as keyof typeof enumValue
-            } else {
-                console.warn('Invalid value for setPageCode:', oldValue)
+            const oldValue = event.oldValue as string | null
+            if (oldValue) {
+                try {
+                    // this.setPageCodeList = JSON.parse(oldValue)
+                } catch (error) {
+                    console.error('Failed to parse JSON:', error)
+                }
             }
+        } else {
+            const oldValue = event.oldValue as string | undefined
+            this.setPageCode = oldValue as keyof typeof enumValue
         }
     }
 }
