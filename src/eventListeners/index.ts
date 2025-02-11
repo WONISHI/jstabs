@@ -2,6 +2,7 @@ import { enumValue, emumStorage, enumKey } from '@/constant'
 import { getBinaryByKey } from '@/utils'
 import storageManager from '@/storageService'
 import { JsTabs } from '@/index'
+import log from '@/log'
 type JsTabsInstance = InstanceType<typeof JsTabs>
 export function eventType(this: JsTabsInstance, page: string, channel: BroadcastChannel | null) {
     const pageCode = JSON.parse(JSON.stringify(page))
@@ -70,6 +71,10 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
     })
     window.addEventListener('storage', (event: StorageEvent) => {
         this._resetClickTrigger()
+        if (this._is_ver) {
+            this._is_ver = false
+            return
+        }
         // 判断交互动作
         switch (true) {
             case event.oldValue && event.newValue && event.newValue !== event.oldValue:
@@ -86,14 +91,15 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
 
 // 监听外部修改localStorage和sessionStorage
 function changeStorage(this: JsTabsInstance, event: StorageEvent) {
-    console.log(event.isTrusted)
     if (event.key !== emumStorage.UUID_PAGE && event.key !== emumStorage.UUID_PAGE_LIST) return
     if (!storageManager.isInternalOperation && event.isTrusted) {
         if (event.key === emumStorage.UUID_PAGE_LIST) {
             const oldValue = event.oldValue as string | null
             if (oldValue) {
                 try {
-                    // this.setPageCodeList = JSON.parse(oldValue)
+                    this.setPageCodeList = JSON.parse(oldValue)
+                    this._is_ver = true
+                    // log('warn', 'external attributes cannot be tampered with at will.')
                 } catch (error) {
                     console.error('Failed to parse JSON:', error)
                 }

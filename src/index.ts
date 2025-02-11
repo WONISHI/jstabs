@@ -4,7 +4,7 @@
  * 如果控制台清理sessionStorage，那么需要监听sessionStorage，然后内部执行初始化再存储一遍，然后塞值，其他页面监听到localStorage变会向新增的页面发送消息监听到
  * 的消息然后更新localStorage
  */
-import { typeOf, getBinaryByKey, getKeyByBinary, deepFreeze } from './utils'
+import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
 import { eventType } from '@/eventListeners'
 import { enumValue, emumStorage, entryKey, type EnumValue } from '@/constant/index'
 import storageManager from '@/storageService'
@@ -16,6 +16,7 @@ export class JsTabs {
     static _eventChannel: BroadcastChannel | null = null
     public _entry_key: keyof typeof entryKey | string = ''
     public _entry_value: string = ''
+    public _is_ver: boolean = false
     public eventType: TabsEventType | null = null
     public clickTrigger: TabsEvent | null = null
     public isOnline: boolean = true // 是否在线
@@ -34,12 +35,13 @@ export class JsTabs {
         this._entry_value = getBinaryByKey(this._entry_key)
         // // 初始化方法
         this.init()
+        // 监听频道
         JsTabs._eventChannel = openBroadcast.call(this)
         // // 初始化监听
         eventType.call(this, this.getPageCode, JsTabs._eventChannel)
         // // 重置状态
         this._resetStatus()
-        // deepFreeze(this)
+
         JsTabs.instance = this
     }
 
@@ -98,6 +100,9 @@ export class JsTabs {
         }
     }
 
+    //更新页面uuid
+    updatePageCode() {}
+
     // 获取项目初始化uuid列表
     get getPageCodeList() {
         return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)
@@ -106,6 +111,7 @@ export class JsTabs {
     }
 
     set setPageCodeList(pageCodeList: { uuid: string } | { uuid: string }[]) {
+        console.log(pageCodeList)
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
             storageManager.internalSetItem(

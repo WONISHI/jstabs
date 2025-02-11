@@ -58,12 +58,3 @@ export function typeOf(value: any) {
     return Object.prototype.toString.call(value).slice(8, -1).toLowerCase()
 }
 
-export function deepFreeze(obj: any) {
-    Object.freeze(obj)
-    Object.keys(obj).forEach((key) => {
-        console.log(obj[key])
-        if (typeof obj[key] === 'object' && obj[key] !== null && !Object.isFrozen(obj[key])) {
-            deepFreeze(obj[key])
-        }
-    })
-}
