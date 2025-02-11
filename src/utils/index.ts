@@ -29,8 +29,8 @@ export function binaryToDecimal(binary: string) {
  * @param {*} key
  * @returns
  */
-export function getBinaryByKey(key : keyof typeof entryKey = 'INIT') {
-    const value = entryKey[key]
+export function getBinaryByKey(key: string | keyof typeof entryKey = 'INIT'):string {
+    const value = entryKey[key as keyof typeof entryKey]
     if (value === undefined) {
         throw new Error(`Invalid key: ${key}`)
     }

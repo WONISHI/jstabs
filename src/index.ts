@@ -6,16 +6,21 @@
  */
 import { typeOf, getBinaryByKey, getKeyByBinary } from './utils'
 import { eventType } from '@/eventListeners'
-import { enumValue, emumStorage } from '@/constant/index'
+import { enumValue, emumStorage, entryKey, type EnumValue } from '@/constant/index'
 import storageManager from '@/storageService'
 import { combineField, decomposeField } from '@/dataStructures'
 import openBroadcast from '@/broadcastListeners'
 
-class JsTabs {
-    static _eventCallbacks: Map<string, Function> = new Map()
+export class JsTabs {
+    static _eventCallbacks: Map<string, Function[]> = new Map()
     static _eventChannel: BroadcastChannel | null = null
-    private _entry_key: string = ''
-    private _entry_value: string = ''
+    public _entry_key: keyof typeof entryKey | string = ''
+    public _entry_value: string = ''
+    public eventType: TabsEventType | null = null
+    public clickTrigger: TabsEvent | null = null
+    public isOnline: boolean = true // 是否在线
+    public isVisiable: boolean = true // 是否可见
+    public isOver: boolean = false // 是否离开
     // 静态实例
     static instance: JsTabs | null = null
     constructor() {
@@ -36,37 +41,50 @@ class JsTabs {
     }
 
     init() {
-        if (!this.getPageCode) this.setPageCode = this._entry_key
+        if (!this.getPageCode) {
+            const entryKeyEnum = this._entry_key as keyof typeof enumValue
+            if (enumValue[entryKeyEnum] !== undefined) {
+                this.setPageCode = entryKeyEnum as EnumValue
+            } else {
+                this.setPageCode = enumValue.DEFAULTS // 默认值
+            }
+        }
         if (this.getPageCodeIndex === -1) this.setPageCodeList = { uuid: this.getPageCode }
     }
 
     // 触发事件并调用所有注册的回调
-    triggerEvent(eventType, ...args: any[]) {
+    triggerEvent(eventType: EnumValue, ...args: any[]) {
         // 获取与事件类型相关的所有回调
         const eventTypeKey = this.setFunName(eventType)
         const callbacks = JsTabs._eventCallbacks.get(eventTypeKey) || []
-        callbacks.forEach((callback: any) => callback(...args)) // 执行回调并传递事件对象
+        if (Array.isArray(callbacks)) {
+            callbacks.forEach((callback: Function) => callback(...args)) // 执行回调并传递事件对象
+        }
     }
 
     // 注册回调
-    watch(eventType, callback) {
+    // 注册回调
+    watch(eventType: EnumValue, callback: Function) {
         const eventTypeKey = this.setFunName(eventType)
         if (!JsTabs._eventCallbacks.has(eventTypeKey)) {
-            JsTabs._eventCallbacks.set(eventTypeKey, [])
+            JsTabs._eventCallbacks.set(eventTypeKey, []) // 初始化为空数组
         }
         const eventCallbacks = JsTabs._eventCallbacks.get(eventTypeKey)
-        eventCallbacks.push(callback) // 将回调添加到事件类型的回调数组中
+        if (Array.isArray(eventCallbacks) && typeof callback === 'function') {
+            eventCallbacks.push(callback) // 将回调添加到事件类型的回调数组中
+        }
     }
 
-    setFunName(eventType) {
+    setFunName(eventType: EnumValue): string {
         return eventType.toLowerCase()
     }
 
     // 设置页面初始化uuid
-    get getPageCode() {
-        return decomposeField(storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)).uuid
+    get getPageCode(): string {
+        const sessionItem = storageManager.internalGetSessionItem(emumStorage.UUID_PAGE) ?? ''
+        return decomposeField(sessionItem).uuid as string
     }
-    set setPageCode(EntryKey) {
+    set setPageCode(EntryKey: EnumValue) {
         if (this.getPageCode) {
             storageManager.internalSetSessionItem(emumStorage.UUID_PAGE, this.getPageCode + '-' + getBinaryByKey(EntryKey))
         } else {
@@ -76,10 +94,10 @@ class JsTabs {
 
     // 获取项目初始化uuid列表
     get getPageCodeList() {
-        return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)) : []
+        return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) ? JSON.parse(storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST) as string) : []
     }
 
-    set setPageCodeList(pageCodeList) {
+    set setPageCodeList(pageCodeList: { uuid: string } | { uuid: string }[]) {
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
             storageManager.internalSetItem(emumStorage.UUID_PAGE_LIST, JSON.stringify([...this.getPageCodeList, pageCodeList]))
@@ -90,7 +108,7 @@ class JsTabs {
 
     // 获取对应页面在项目列表的uuid的哪项
     get getPageCodeIndex() {
-        return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item) => item.uuid === this.getPageCode) : -1
+        return this.getPageCodeList.length ? this.getPageCodeList.findIndex((item: TabsPage) => item.uuid === this.getPageCode) : -1
     }
 
     // 重置状态

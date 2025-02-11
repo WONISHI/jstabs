@@ -8,7 +8,7 @@ export function combineField(status: EnumValue = DefaultStatus) {
 }
 
 // 拆解字段
-export function decomposeField(pageCode = storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)) {
+export function decomposeField(pageCode = storageManager.internalGetSessionItem(emumStorage.UUID_PAGE)): { uuid: string | null; status: string } {
     const defaultStatus = getBinaryByKey(DefaultStatus)
     if (!pageCode) {
         return {

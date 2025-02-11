@@ -26,12 +26,12 @@ const npm_lifecycle_event = process.env.npm_lifecycle_event
 process.env.VUE_APP_PACKAGE_ENV = npm_lifecycle_event && npm_lifecycle_event.indexOf('build') > -1 ? 'build' : 'serve'
 
 export default {
-    input: './src/index.js',
+    input: './src/index.ts',
     output: {
         file: `dist/index.js`,
         name: 'JsTabs',
         format,
-        sourcemap: false
+        sourcemap: true
     },
     plugins: [
         typescript({

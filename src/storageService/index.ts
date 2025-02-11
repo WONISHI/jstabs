@@ -6,7 +6,7 @@ class StorageManager {
     private _localStorage: Storage | null = null
     private _sessionStorage: Storage | null = null
     private _entry_value: string = ''
-    private isInternalOperation: boolean = false
+    public isInternalOperation: boolean = false
     constructor() {
         if (StorageManager.instance) {
             return StorageManager.instance

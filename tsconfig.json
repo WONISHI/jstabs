@@ -9,10 +9,11 @@
         "lib": ["es2017", "DOM"],
         "strict": true,
         "esModuleInterop": false,
-        "outDir": "out-tsc",
         "rootDir": "./",
         "allowJs": true,
         "noImplicitAny": true,
+        "outDir": "dist",  // 确保与 Rollup 输出路径一致
+        "typeRoots":["./node_modules/@types/","./src/typings"],
         "paths": {
             "@/*": ["./src/*"]
         }
