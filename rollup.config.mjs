@@ -9,6 +9,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import { terser } from 'rollup-plugin-terser'
 import replace from '@rollup/plugin-replace'
 import alias from '@rollup/plugin-alias'
+import copy from 'rollup-plugin-copy'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
@@ -34,6 +35,9 @@ export default {
         sourcemap: true
     },
     plugins: [
+        copy({
+            targets: [{ src: './src/eventListeners/sw.js', dest: 'dist' }]
+        }),
         typescript({
             tsconfig: './tsconfig.json'
         }),

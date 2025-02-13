@@ -5,6 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "serve": "npm run dev",
     "dev": "cross-env NODE_ENV=dev BUILD_FORMAT=umd  rollup -c rollup.config.mjs -w",
     "build:dev": "cross-env NODE_ENV=dev BUILD_FORMAT=umd  rollup -c rollup.config.mjs",
     "build:prod": "cross-env NODE_ENV=prod BUILD_FORMAT=umd  rollup -c rollup.config.mjs",
@@ -27,6 +28,7 @@
     "cross-env": "^7.0.3",
     "rollup": "^2.79.2",
     "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dev-server": "^0.4.3",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^1.1.1",

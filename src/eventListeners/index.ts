@@ -3,8 +3,11 @@ import { getBinaryByKey } from '@/utils'
 import storageManager from '@/storageService'
 import { JsTabs } from '@/index'
 import log from '@/log'
+import collapseManager from '@/eventListeners/collapseMonitor'
 type JsTabsInstance = InstanceType<typeof JsTabs>
 export function eventType(this: JsTabsInstance, page: string, channel: BroadcastChannel | null) {
+    collapseManager.call(this)
+    // 缓存
     const pageCode = JSON.parse(JSON.stringify(page))
     // 判断刷新操作
     window.addEventListener('unload', () => {
@@ -23,6 +26,7 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
     })
     // 进入页面判断是否已经初始化
     window.addEventListener('load', () => {
+        console.log(this.getPageCode,this.getPageCodeList,this.getPageCodeIndex)
         if (this._entry_key === enumValue.INIT) {
             this.eventType!.eventCode = enumValue.REFRESH
             this.eventType!.EventSource = enumValue.REFRESH
@@ -30,6 +34,8 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
             this._entry_key = enumValue.REFRESH
             this._entry_value = getBinaryByKey(enumValue.REFRESH)
             this.triggerEvent(enumValue.REFRESH)
+            // 判断是否需要启动恢复模式
+            console.log(this.getPageCode)
             this.setPageCode = enumValue.REFRESH
         }
         if (this._entry_key !== enumValue.REFRESH) {
@@ -40,28 +46,42 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
             this.triggerEvent(enumValue.INIT)
             this._entry_key = enumValue.INIT
             this._entry_value = getBinaryByKey(enumValue.INIT)
+            // 判断是否需要启动恢复模式
+            console.log(this.getPageCode)
+            if(this.getPageCodeIndex){
+                
+            }
+
             // 更新刷新后的状态
             this.setPageCode = enumValue.INIT
         }
     })
+
+    // 监听点击事件
     document.addEventListener('click', (event) => {
         this.clickTrigger!.isClick = true
         this.clickTrigger!.target = event
         this.clickTrigger!.isMouse = false
         this.triggerEvent(enumValue.CLICK_ELEMENT, event)
     })
+
+    // 监听网络变化
     window.addEventListener('line', () => {
         this._resetClickTrigger()
         this.isOnline = true
         // 触发在线事件
         this.triggerEvent(enumValue.ONLINE_OFFLINE)
     })
+
+    // 监听网络变化
     window.addEventListener('offline', () => {
         this._resetClickTrigger()
         this.isOnline = false
         // 触发离线事件
         this.triggerEvent(enumValue.ONLINE_OFFLINE)
     })
+
+    // 监听可见性变化
     window.addEventListener('visibilitychange', () => {
         this._resetClickTrigger()
         this.isVisiable = document.visibilityState === 'visible'
@@ -69,6 +89,8 @@ export function eventType(this: JsTabsInstance, page: string, channel: Broadcast
         // 触发可见监听事件
         this.triggerEvent(enumValue.PAGE_VISIBILITY)
     })
+
+    // 监听storage事件
     window.addEventListener('storage', (event: StorageEvent) => {
         this._resetClickTrigger()
         if (this._is_ver) {

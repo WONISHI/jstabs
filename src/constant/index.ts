@@ -39,6 +39,7 @@ export const entryKey = {
     CLOSE_TAB_WINDOW: 1 << 1, // 用户关闭标签页、浏览器窗口 1 (二进制: 00000001)
     REFRESH: 1 << 2,
     NAVIGATION: 1 << 3,
+    RECOVER: 1 << 4,
     DEFAULTS: 0 << 0
 } as const
 

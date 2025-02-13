@@ -103,6 +103,11 @@ export class JsTabs {
     //更新页面uuid
     updatePageCode() {}
 
+    // 恢复页面状态
+    recoverPageCode(){
+        
+    }
+
     // 获取项目初始化uuid列表
     get getPageCodeList() {
         return storageManager.internalGetItem(emumStorage.UUID_PAGE_LIST)
@@ -111,7 +116,6 @@ export class JsTabs {
     }
 
     set setPageCodeList(pageCodeList: { uuid: string } | { uuid: string }[]) {
-        console.log(pageCodeList)
         // 判断是对象还是数组
         if (typeOf(pageCodeList) === 'object') {
             storageManager.internalSetItem(
