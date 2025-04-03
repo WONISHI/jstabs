@@ -1,52 +1,35 @@
-name: pull-network-policy
+name: Build JS Project
 
 on:
   push:
     branches:
-      - master
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  check-node:
-    name: Check Node
-    runs-on: ubuntu-latest  # 设置运行的环境为最新的 Ubuntu
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4  # 检出仓库的代码
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4  # 设置 Node.js 环境
-        with:
-          node-version: '14.17.0'  # 设置 Node.js 版本
-
-      - name: Install dependencies
-        run: npm install  # 安装依赖
-
-      - name: Run build
-        run: npm run build:dev  # 运行测试
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    needs: check-node
+  build:
     runs-on: ubuntu-latest
-    name: Deploy
+
     steps:
-      - name: Checkout Repository
+      - name: 📥 检出代码
         uses: actions/checkout@v4
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - name: 🏗️ 设置 Node.js 环境
+        uses: actions/setup-node@v4
         with:
-          branch: gh-pages
-          folder: ./dist  # 这里指定了构建产物的路径，假设它们位于 ./dist 目录
+          node-version: 18
+          cache: 'npm'
+
+      - name: 📦 安装依赖
+        run: npm install
+
+      - name: 🔨 运行构建（Rollup/Webpack/esbuild）
+        run: npm run build
+
+      - name: 📤 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
