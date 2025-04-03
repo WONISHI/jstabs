@@ -26,3 +26,9 @@ jobs:
       run: |
         npm install
         npm run build:dev
+    # 上传构建产物
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-files
+        path: dist/
