@@ -1,0 +1,52 @@
+name: pull-network-policy
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check-node:
+    name: Check Node
+    runs-on: ubuntu-latest  # 设置运行的环境为最新的 Ubuntu
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # 检出仓库的代码
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4  # 设置 Node.js 环境
+        with:
+          node-version: '14.17.0'  # 设置 Node.js 版本
+
+      - name: Install dependencies
+        run: npm install  # 安装依赖
+
+      - name: Run build
+        run: npm run build:dev  # 运行测试
+
+    deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      needs: check-node
+    runs-on: ubuntu-latest
+      name: Deploy
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+    
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v2
+          with:
+            branch: gh-pages
+            folder: ./dist  # 这里指定了构建产物的路径，假设它们位于 ./dist 目录
